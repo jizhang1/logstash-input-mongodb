@@ -1,5 +1,5 @@
 Gem::Specification.new do |s|
-  s.name = 'logstash-input-mongodb'
+  s.name = 'logstash-input-mongodb_faas'
   s.version = '0.4.3'
   s.licenses = ['Apache License (2.0)']
   s.summary = "This takes entries from mongodb as an input to logstash."

@@ -11,7 +11,7 @@ require "mongo"
 include Mongo
 
 class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
-  config_name "mongodb"
+  config_name "mongodb_faas"
 
   # If undefined, Logstash will complain, even if codec is unused.
   default :codec, "plain"
@@ -148,7 +148,7 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
     collection = mongodb.collection(mongo_collection_name)
     # Need to make this sort by date in object id then get the first of the series
     # db.events_20150320.find().limit(1).sort({ts:1})
-    return collection.find({:start => {:$gt => last_id_object}}).limit(batch_size)
+    return collection.find({:start => {:$gt => last_id_object}}).sort(since_column => 1).limit(batch_size)
   end
 
   public

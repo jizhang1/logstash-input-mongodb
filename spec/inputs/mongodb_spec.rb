@@ -3,7 +3,7 @@
 require "logstash/devutils/rspec/spec_helper"
 require "tempfile"
 require "stud/temporary"
-require "logstash/inputs/mongodb"
+require "logstash/inputs/mongodb_faas"
 require 'mongo'
 include Mongo
 
@@ -43,7 +43,7 @@ describe LogStash::Inputs::MongoDB do
 
     conf = <<-CONFIG
       input {
-        mongodb {
+        mongodb_faas {
           uri => "#{mongo_uri}"
           placeholder_db_dir => "#{placeholder_db_dir}"
           placeholder_db_name => "#{placeholder_db_name}"
