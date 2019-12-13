@@ -80,7 +80,7 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
     begin
       sqlitedb.create_table "#{SINCE_TABLE}" do
         String :table
-        String :place
+        Int :place
       end
     rescue
       @logger.debug("since table already exists")
@@ -148,7 +148,7 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
     collection = mongodb.collection(mongo_collection_name)
     # Need to make this sort by date in object id then get the first of the series
     # db.events_20150320.find().limit(1).sort({ts:1})
-    return collection.find({:_id => {:$gt => last_id_object}}).limit(batch_size)
+    return collection.find({:start => {:$gt => last_id_object}}).limit(batch_size)
   end
 
   public
@@ -245,19 +245,21 @@ class LogStash::Inputs::MongoDB < LogStash::Inputs::Base
             last_id_object = BSON::ObjectId(last_id)
           elsif since_type == 'time'
             if last_id != ''
-              last_id_object = Time.at(last_id)
+              last_id_object = last_id
+              # last_id_object = Time.at(last_id)
             end
           end
           cursor = get_cursor_for_collection(@mongodb, collection_name, last_id_object, batch_size)
           cursor.each do |doc|
-            logdate = DateTime.parse(doc['_id'].generation_time.to_s)
+            # logdate = DateTime.parse(doc['_id'].generation_time.to_s)
             event = LogStash::Event.new("host" => @host)
             decorate(event)
-            event.set("logdate",logdate.iso8601.force_encoding(Encoding::UTF_8))
-            log_entry = doc.to_h.to_s
-            log_entry['_id'] = log_entry['_id'].to_s
-            event.set("log_entry",log_entry.force_encoding(Encoding::UTF_8))
-            event.set("mongo_id",doc['_id'].to_s)
+            # event.set("logdate",logdate.iso8601.force_encoding(Encoding::UTF_8))
+            # log_entry = doc.to_h.to_s
+            # log_entry['_id'] = log_entry['_id'].to_s
+            # event.set("log_entry",log_entry.force_encoding(Encoding::UTF_8))
+            # event.set("mongo_id",doc['_id'].to_s)
+            event.set("doc", doc)
             @logger.debug("mongo_id: "+doc['_id'].to_s)
             #@logger.debug("EVENT looks like: "+event.to_s)
             #@logger.debug("Sent message: "+doc.to_h.to_s)
